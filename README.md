@@ -1,4 +1,4 @@
-# Documentação Técnica - Automação Kommo/n8n
+# Detalhes sobre o repositório do desafio
 
 ## Sobre esta Entrega
 
@@ -6,9 +6,9 @@ Atendi exatamente ao solicitado no desafio, organizando a documentação em dois
 
 ### O que entreguei:
 
-  **documentação técnica completa**  
+  **documentação técnica completa**, você pode encontra-la dentro da pasta 'documentacao'
    - Versão em **PDF** (para leitura formatada)  
-   - Versão em **.md** (com códigos)  
+   - Versão em **.md** (com códigos, mais detalhado)  
 
 **Sobre os Scripts**  
    - Os scripts e JSONs incluídos na pasta(com exceção dos JSONs solicitados) são **modelos** de **exemplo**, algo parecido com o que implementaria em produção, contendo:  
