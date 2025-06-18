@@ -1,0 +1,103 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "name": "Webhook Kommo",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [250, 300],
+      "webhookId": "kommo-lead-events",
+      "respondWithPong": true
+    },
+
+    {
+      "parameters": {
+        "jsCode": "// Valida se o evento veio do Kommo e tem lead_id\nif (!Object.keys($input.all()[0].json).includes('lead_id')) {\n  throw new Error('Payload inválido: falta lead_id');\n}\n\nreturn $input.all()[0].json;"
+      },
+      "name": "Validar Payload",
+      "type": "n8n-nodes-base.function",
+      "typeVersion": 1,
+      "position": [450, 300]
+    },
+
+    {
+      "parameters": {
+        "url": "https://kommo.com/api/v4/leads/{{$node['Validar Payload'].json['lead_id']}}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "apiKey",
+        "genericAuthProperties": {
+          "key": "Authorization",
+          "value": "Bearer {{$env.KOMMO_API_KEY}}"
+        },
+        "headers": {
+          "Content-Type": "application/json"
+        }
+      },
+      "name": "GET Lead Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [650, 300]
+    },
+
+    {
+      "parameters": {
+        "url": "https://kommo.com/api/v4/leads/{{$node['Validar Payload'].json['lead_id']}}",
+        "options": {
+          "body": {
+            "status_id": 456, 
+            "updated_at": "{{$timestamp}}"
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "apiKey",
+        "method": "PATCH"
+      },
+      "name": "PATCH Update Lead",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 1,
+      "position": [850, 300],
+      "continueOnFail": true 
+    },
+
+    {
+      "parameters": {
+        "errorBehavior": "continue"
+      },
+      "name": "Error Handler",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [1050, 300],
+      "alwaysOutputData": false
+    },
+   
+    {
+      "parameters": {
+        "message": "Falha ao mover lead ID {{$node['Validar Payload'].json['lead_id']}}:\n\n*Erro:* {{$node['Error Handler'].json['error']['message']}}\n*Timestamp:* {{$timestamp}}",
+        "options": {}
+      },
+      "name": "Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 1,
+      "position": [1250, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Kommo": {
+      "main": [[{ "node": "Validar Payload", "type": "main", "index": 0 }]]
+    },
+    "Validar Payload": {
+      "main": [[{ "node": "GET Lead Details", "type": "main", "index": 0 }]]
+    },
+    "GET Lead Details": {
+      "main": [[{ "node": "PATCH Update Lead", "type": "main", "index": 0 }]]
+    },
+    "PATCH Update Lead": {
+      "main": [],
+      "error": [[{ "node": "Error Handler", "type": "error", "index": 0 }]]
+    },
+    "Error Handler": {
+      "main": [[{ "node": "Slack Alert", "type": "main", "index": 0 }]]
+    }
+  }
+}
