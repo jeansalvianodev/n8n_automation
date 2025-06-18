@@ -6,7 +6,7 @@ Atendi exatamente ao solicitado no desafio, organizando a documentação em dois
 
 ### O que entreguei:
 
-  **Documentação Técnica Completa**  
+  **documentação técnica completa**  
    - Versão em **PDF** (para leitura formatada)  
    - Versão em **.md** (com códigos)  
 
